@@ -1,30 +1,47 @@
-import logo from './logo.svg';
-import search from './assests/Search.svg';
-
-
-import {Card, Container, Row, Col, Badge, Breadcrumb, InputGroup, FormControl
-,Dropdown, Button, ButtonGroup,ToggleButton} from 'react-bootstrap';
-import React, { useState } from 'react';
+import { Breadcrumb} from 'react-bootstrap';
+import React, { useState,useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './App.css';
 import {Header} from './components/Header.js'
+import {Filter} from './components/Filter.js'
+import {Card} from './components/Card.js'
+import {HttpConstants} from './APIService/HttpConstant.ts'
 
 
+
+var peopleSeed=[]
 
 function App() {
-  const radios = [
-    { name: 'ASC', value: '1' },
-    { name: 'DESC', value: '2' },
-   
-  ];
-  const [radioValue, setRadioValue] = useState('1');
+ 
+  const [peoples,setPeople]=useState(null); //Data Fetching
+  const [planets,setPlanets]=useState(null);
+
+  useEffect(()=>{
+
+    fetch(HttpConstants.APIBase+"people")
+    .then(res=>{
+      return res.json()
+    }).then(data=>{
+      SetSpecieName(setPeople,data.results)
+
+    })
+
+    fetch(HttpConstants.APIBase+"planets")
+    .then(res=>{
+      return res.json()
+    }).then(data=>{
+      SetSpecieName(setPlanets,data.results)
+
+    })
+
+
+  },[])
 
   return (
     
-      
     <div>
-      <div class="container pt-3">
+      <div className="container pt-3">
 
         <Header/>
         <hr/>
@@ -34,67 +51,41 @@ function App() {
           <Breadcrumb.Item active>Select a card</Breadcrumb.Item>
         </Breadcrumb>
 
-      <div class="container pb-2">
-        <div class="row">
-          <div class="col">
-            <div class="input-group">
-              <input type="text" class="form-control border-0 rounded" placeholder="Search" aria-label="Recipient's username" aria-describedby="basic-addon2"/>
-              <div class="bg-white rounded">
-                <img class="p-2" style={{cursor:"pointer"}} src={search}/>
-              </div>
-            </div>
-          </div>
-          <div class="col col-4">
-            Sort by &nbsp;
-            <Dropdown as={ButtonGroup}>
-              <Button class=" text-dark rounded border-1" variant="light">Homeworld</Button>
-              <Dropdown.Toggle variant="gray" split  id="dropdown-custom-2" />
-              <Dropdown.Menu>
-                <Dropdown.Item eventKey="1">Action</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-
-            <ButtonGroup>
-              {radios.map((radio, idx) => (
-                <ToggleButton
-                  key={idx}
-                  id={`radio-${idx}`}
-                  type="radio"
-                  variant={idx % 2 ? 'light' : 'primary'}
-                  name="radio"
-                  value={radio.value}
-                  checked={radioValue === radio.value}
-                  onChange={(e) => setRadioValue(e.currentTarget.value)}
-                >
-                  {radio.name}
-                </ToggleButton>
-              ))}
-            </ButtonGroup>
-
-          </div>
-        </div>
+        <Filter/>
+        {peoples && <Card items={peoples}/>}
+      
+        
+        
       </div>
-      </div>
-      <Container>
-        <Row>
-          <Col>
-          <Card border="success" style={{ width: '18rem' }}>
-              <Card.Header>Header</Card.Header>
-              <Card.Body>
-                <Card.Title>Success Card Title</Card.Title>
-                <Card.Text>
-                  Some quick example text to build on the card title and make up the bulk
-                  of the card's content.
-                </Card.Text>
-              </Card.Body>
-          </Card>
-          </Col>
-        </Row>
-      </Container>
-
+      
+      
       
     </div>
   );
 }
+
+
+
+function SetSpecieName(state,items){
+ state(items)
+  
+ items.forEach(s=>{
+  var specie = s.species[0]
+  
+  if(specie){
+    fetch(specie)
+    .then(res=>{
+      return res.json()
+    }).then(data=>{
+      s.species[0]=data.name;
+
+    })
+  }else{
+    s.species[0]="Unknown"
+  }
+ })
+  
+}
+  
 
 export default App;

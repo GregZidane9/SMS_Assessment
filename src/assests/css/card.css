@@ -1,0 +1,12 @@
+.maxWidth{
+    max-width: 18rem;
+    min-width: 18rem;
+
+}
+
+.bg{
+    background-color: gainsboro;
+    padding: 0.3rem;
+    border-radius: 0.3rem;
+    margin-top: 1rem;
+}
